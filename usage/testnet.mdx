@@ -1,0 +1,96 @@
+---
+title: "Testnet Mode"
+description: "Trade against sandbox endpoints on Binance or Bybit without risking real funds."
+---
+
+## What Is Testnet Mode?
+
+Testnet mode routes all API calls to the official sandbox environments provided by supported exchanges. Orders are executed with paper funds, so no real money is at risk. This lets you validate your configuration, strategies, and signal sources end-to-end before going live.
+
+## Supported Testnet Environments
+
+| Exchange | Testnet URL | Notes |
+|----------|------------|-------|
+| **Binance** | `https://testnet.binancefuture.com` | Requires a separate testnet API key from [testnet.binancefuture.com](https://testnet.binancefuture.com). |
+| **Bybit** | `https://api-testnet.bybit.com` | Requires a separate testnet API key from [testnet.bybit.com](https://testnet.bybit.com). |
+
+When `"testnet": true` is set in `config.json`, the bot automatically switches to the correct sandbox endpoint for the configured exchange — no other changes are needed.
+
+## Enabling Testnet Mode
+
+<Steps>
+  <Step title="Obtain testnet API keys">
+    Register on your exchange's testnet portal and generate a dedicated API key and secret. Testnet keys are separate from live keys.
+  </Step>
+  <Step title="Update config.json">
+    Open `config.json` and set the following fields. Replace the placeholder values with your testnet credentials:
+
+    ```json
+    {
+      "exchange": "binance",
+      "api_key": "YOUR_TESTNET_API_KEY",
+      "api_secret": "YOUR_TESTNET_API_SECRET",
+      "testnet": true
+    }
+    ```
+  </Step>
+  <Step title="Launch the bot">
+    Start the bot normally. It will connect to testnet endpoints instead of production.
+
+    ```bash
+    python main.py
+    ```
+  </Step>
+  <Step title="Verify the connection">
+    Select **5 — Start Auto Trading** or **7 — Position Manager** from the menu. Confirm that the account balance shown reflects testnet paper funds, not real balances.
+  </Step>
+</Steps>
+
+## Why Use Testnet?
+
+<Tip>
+  Always test new strategies on testnet before deploying with real funds. Even small configuration mistakes can cause unintended trades at live leverage.
+</Tip>
+
+- **Validate API credentials** — confirm key permissions and IP whitelist settings without risking a live trade.
+- **Test signal integration** — run a full Telegram or TradingView webhook flow and verify that signals trigger orders correctly.
+- **Tune strategy parameters** — iterate on EMA, RSI, BB, and MACD settings and observe results in the P&L Dashboard without financial consequences.
+- **Rehearse the full workflow** — practice the Settings → Connect Signal → Start Trading sequence before going live.
+
+## Switching Back to Live Trading
+
+<Warning>
+  Always set `"testnet": false` (or remove the key entirely) and replace testnet API keys with live credentials before real trading. Leaving `"testnet": true` with live keys will cause connection errors; leaving it `false` with testnet keys against the live exchange will also fail.
+</Warning>
+
+```json
+{
+  "exchange": "binance",
+  "api_key": "YOUR_LIVE_API_KEY",
+  "api_secret": "YOUR_LIVE_API_SECRET",
+  "testnet": false
+}
+```
+
+After editing `config.json`, restart the bot for the change to take effect.
+
+## Default Value
+
+The `testnet` field defaults to `false` if omitted from `config.json`. You can also see and confirm this setting in the **Settings** menu (option 2).
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Configuration File" icon="file-code" href="/configuration/config-file">
+    Full reference for every config.json field.
+  </Card>
+  <Card title="Exchange Setup" icon="building-columns" href="/configuration/exchange-setup">
+    Generate and configure live or testnet API keys.
+  </Card>
+  <Card title="Start Trading" icon="play" href="/usage/menu-reference">
+    Return to the terminal menu reference.
+  </Card>
+  <Card title="Disclaimer" icon="triangle-exclamation" href="/reference/disclaimer">
+    Important risk disclosure before live trading.
+  </Card>
+</CardGroup>

@@ -1,0 +1,122 @@
+---
+title: "Installation"
+description: "Install Binance Futures Signal Bot on Windows, Linux, or macOS."
+---
+
+## Prerequisites
+
+Before installing, make sure you have the following:
+
+- **Python 3.10 or higher** — Check your version with `python --version` or `python3 --version`.
+- **pip** — The latest version is recommended. Upgrade with `pip install --upgrade pip`.
+- **Exchange API keys** — Keys must have futures trading permissions enabled. Generate them in your exchange account settings.
+- **Signal source credentials** — A Telegram bot token, a TradingView webhook-accessible URL, or a custom API endpoint.
+
+## Install dependencies
+
+Clone the repository, then install the required packages from `requirements.txt`:
+
+```bash
+git clone https://github.com/Whit1985/Binance-Futures-Signal-Bot.git
+cd Binance-Futures-Signal-Bot
+pip install -r requirements.txt
+```
+
+### Dependency table
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `rich` | ≥ 13.0.0 | Terminal UI, tables, and progress bars |
+| `cryptography` | latest | Secure key storage and AES encryption |
+| `python-binance` | ≥ 1.0.19 | Binance REST and WebSocket API |
+| `ccxt` | ≥ 4.2.0 | Unified multi-exchange interface (Bybit, OKX) |
+| `pandas` | ≥ 2.1.0 | OHLCV data analysis and indicator calculation |
+| `ta` | ≥ 0.10.2 | Technical analysis indicators (EMA, RSI, BB, MACD) |
+| `websockets` | ≥ 12.0 | Real-time market data streams |
+
+### Built-in installer
+
+If you prefer not to run pip manually, the bot includes a built-in dependency installer. Start the bot with `python main.py` and select option **1 — Install Dependencies** from the menu. The bot checks for pip, installs it if missing, and then installs all required packages automatically.
+
+## Platform-specific launchers
+
+Each platform has a dedicated launcher script that handles environment setup before starting the bot.
+
+<Tabs>
+  <Tab title="Windows">
+    Use `run.bat` to start the bot on Windows. The script sets the console to UTF-8 (`chcp 65001`), changes to the project directory, and runs `main.py`. It checks for a bundled Python runtime at `_env\python.exe` and uses it if present; otherwise it falls back to the system `python` command.
+
+    ```batch
+    run.bat
+    ```
+
+    If you have Python installed system-wide and in `PATH`, you can also run directly:
+
+    ```batch
+    python main.py
+    ```
+
+    <Note>
+      The `run.bat` launcher does not create a virtual environment. Install dependencies first with `pip install -r requirements.txt`, or use menu option **1 — Install Dependencies** after launching the bot.
+    </Note>
+  </Tab>
+  <Tab title="Linux / macOS">
+    Use `run.sh` to start the bot on Linux or macOS. The script automatically creates a Python virtual environment in the `venv/` directory on the first run, activates it, and then launches `main.py`.
+
+    ```bash
+    chmod +x run.sh
+    ./run.sh
+    ```
+
+    On subsequent runs the existing virtual environment is reused — no re-creation occurs. The full launcher script is:
+
+    ```bash run.sh
+    #!/usr/bin/env bash
+    set -e
+    cd "$(dirname "$0")"
+
+    if [ ! -d "venv" ]; then
+        echo "Creating virtual environment..."
+        python3 -m venv venv
+    fi
+    source venv/bin/activate
+
+    python3 main.py
+    ```
+
+    <Tip>
+      Installing dependencies inside a virtual environment keeps your system Python clean and avoids version conflicts with other projects. Run `pip install -r requirements.txt` after the venv is created on first use.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Verify the installation
+
+After installation, run the bot directly to confirm everything is working:
+
+```bash
+python main.py
+```
+
+You should see the bot's banner and the interactive menu table. If any import fails, the bot will display the missing package and prompt you to run `pip install rich cryptography` as a fallback.
+
+<Note>
+  If you see `ModuleNotFoundError`, ensure you installed dependencies into the same Python environment you are using to run `main.py`. On Linux and macOS with the `run.sh` launcher, the virtual environment is activated automatically.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Configure API keys and start your first automated trading session.
+  </Card>
+  <Card title="Exchange setup" icon="building-columns" href="/configuration/exchange-setup">
+    Generate API keys with the correct permissions for Binance, Bybit, or OKX.
+  </Card>
+  <Card title="Signal sources" icon="signal" href="/signals/overview">
+    Connect Telegram, TradingView, or a custom API as your signal provider.
+  </Card>
+  <Card title="FAQ" icon="circle-question" href="/reference/faq">
+    Common setup questions and troubleshooting tips.
+  </Card>
+</CardGroup>

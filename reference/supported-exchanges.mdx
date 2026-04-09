@@ -1,0 +1,176 @@
+---
+title: 'Supported exchanges'
+description: 'Binance, Bybit, and OKX exchange integrations — supported markets, API versions, and setup instructions.'
+keywords: ['binance', 'bybit', 'okx', 'exchange', 'futures', 'api']
+---
+
+The bot supports three exchanges for futures trading. Each exchange requires its own API key pair with futures trading permissions enabled.
+
+| Exchange | Futures | Spot | API version |
+|----------|:-------:|:----:|-------------|
+| Binance  | ✓       | ✓    | v3 / fapi   |
+| Bybit    | ✓       | —    | v5          |
+| OKX      | ✓       | —    | v5          |
+
+<Note>
+  Multi-exchange mode — running the bot against multiple exchanges simultaneously — is planned for a future release. Currently, one exchange is active per `config.json`.
+</Note>
+
+## Required API permissions
+
+Before generating API keys on any exchange, ensure the following permissions are enabled:
+
+- **Futures trading** — required for opening and closing positions
+- **Read account information** — required for balance and position queries
+- **IP whitelist** (recommended) — restrict key usage to your server's IP address
+
+Do not enable withdrawal permissions. The bot does not require them, and omitting them limits exposure if a key is ever compromised.
+
+---
+
+## Exchange setup
+
+<Tabs>
+  <Tab title="Binance">
+    ### Binance
+
+    Binance is the primary supported exchange. Both USDⓈ-M Futures and Spot markets are available.
+
+    **Supported markets**
+    - Futures: USDⓈ-M Perpetual (e.g. `BTCUSDT`)
+    - Spot: standard spot pairs (e.g. `BTCUSDT`)
+
+    **API version:** v3 (Spot) / fapi v1 (Futures)
+
+    **Set in config.json:**
+
+    ```json
+    {
+      "exchange": "binance"
+    }
+    ```
+
+    **Testnet support:** yes — set `"testnet": true` to route all requests to the Binance Futures Testnet.
+
+    ```json
+    {
+      "exchange": "binance",
+      "testnet": true
+    }
+    ```
+
+    **Where to get API keys:**
+
+    1. Log in to [Binance](https://www.binance.com/) and go to **Account → API Management**.
+    2. Create a new API key. Enable **Futures trading**.
+    3. Copy the API key and secret into `config.json`:
+
+    ```json
+    {
+      "exchange": "binance",
+      "api_key": "YOUR_BINANCE_KEY",
+      "api_secret": "YOUR_BINANCE_SECRET"
+    }
+    ```
+
+    <Warning>
+      Never commit your API key or secret to version control. The `config.json` file is included in `.gitignore` by default.
+    </Warning>
+  </Tab>
+  <Tab title="Bybit">
+    ### Bybit
+
+    Bybit is supported for USDT Perpetual futures only. Spot trading is not available through this bot on Bybit.
+
+    **Supported markets**
+    - Futures: USDT Perpetual (e.g. `BTCUSDT`)
+
+    **API version:** v5
+
+    **Set in config.json:**
+
+    ```json
+    {
+      "exchange": "bybit"
+    }
+    ```
+
+    **Testnet support:** yes — set `"testnet": true` to route requests to the Bybit Testnet environment.
+
+    ```json
+    {
+      "exchange": "bybit",
+      "testnet": true
+    }
+    ```
+
+    **Where to get API keys:**
+
+    1. Log in to [Bybit](https://www.bybit.com/) and go to **Account → API**.
+    2. Create a new key. Under **Permissions**, enable **Contract — Orders** and **Read**.
+    3. Copy the API key and secret into `config.json`:
+
+    ```json
+    {
+      "exchange": "bybit",
+      "api_key": "YOUR_BYBIT_KEY",
+      "api_secret": "YOUR_BYBIT_SECRET"
+    }
+    ```
+
+    <Warning>
+      Never commit your API key or secret to version control. The `config.json` file is included in `.gitignore` by default.
+    </Warning>
+  </Tab>
+  <Tab title="OKX">
+    ### OKX
+
+    OKX is supported for Perpetual Swap (futures) contracts only. Spot trading is not available through this bot on OKX.
+
+    **Supported markets**
+    - Futures: USDT-margined Perpetual Swap (e.g. `BTC-USDT-SWAP`)
+
+    **API version:** v5
+
+    **Set in config.json:**
+
+    ```json
+    {
+      "exchange": "okx"
+    }
+    ```
+
+    **Testnet support:** OKX provides a demo trading environment. Check the [OKX API documentation](https://www.okx.com/docs-v5/en/) for demo endpoint configuration.
+
+    **Where to get API keys:**
+
+    1. Log in to [OKX](https://www.okx.com/) and go to **Profile → API**.
+    2. Create a new API key. Enable **Trade** permissions under **Futures/Perpetual Swap**.
+    3. Copy the API key, secret, and passphrase into `config.json`:
+
+    ```json
+    {
+      "exchange": "okx",
+      "api_key": "YOUR_OKX_KEY",
+      "api_secret": "YOUR_OKX_SECRET"
+    }
+    ```
+
+    <Warning>
+      Never commit your API key or secret to version control. The `config.json` file is included in `.gitignore` by default.
+    </Warning>
+  </Tab>
+</Tabs>
+
+---
+
+## Further reading
+
+<CardGroup cols={2}>
+  <Card title="Exchange setup guide" icon="gear" href="/configuration/exchange-setup">
+    Step-by-step walkthrough for configuring your exchange connection.
+  </Card>
+  <Card title="Risk management" icon="shield" href="/configuration/risk-management">
+    Configure stop-loss, take-profit, and position sizing limits.
+  </Card>
+</CardGroup>

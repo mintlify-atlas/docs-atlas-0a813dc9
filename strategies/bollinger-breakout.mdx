@@ -1,0 +1,61 @@
+---
+title: 'Bollinger Band Breakout Strategy'
+description: 'Enters long positions when price closes above the upper Bollinger Band and short positions when price closes below the lower band.'
+keywords: ['bollinger bands', 'breakout', 'standard deviation', 'volatility', 'strategy']
+---
+
+Enters long when price closes above the upper band and short when below the lower band. Configurable standard deviation multiplier and lookback period.
+
+<Note>
+  This strategy is **disabled by default**. It is designed for high-volatility market conditions and should be tested on testnet and tuned to your target pairs before enabling in production.
+</Note>
+
+## Configuration
+
+```json config.json
+{
+  "strategies": {
+    "bollinger_breakout": {
+      "enabled": false,
+      "period": 20,
+      "std_dev": 2.0
+    }
+  }
+}
+```
+
+To enable the strategy, set `"enabled": true` in your `config.json`.
+
+## Parameters
+
+<ParamField path="enabled" type="boolean" default="false">
+  Activates or deactivates the Bollinger Band Breakout strategy. Disabled by default — set to `true` to enable.
+</ParamField>
+
+<ParamField path="period" type="integer" default="20">
+  The lookback period for calculating the middle band (simple moving average) and the standard deviation. A value of 20 is the conventional default. Shorter periods make the bands more reactive to recent price; longer periods widen them and produce fewer signals.
+</ParamField>
+
+<ParamField path="std_dev" type="number" default="2.0">
+  The standard deviation multiplier used to set the upper and lower band distance from the middle band. The default of 2.0 means the bands encompass approximately 95% of recent price action. Increasing this value widens the bands and reduces the frequency of breakout signals; decreasing it narrows the bands and produces more frequent but lower-quality signals.
+</ParamField>
+
+## Signal logic
+
+The strategy calculates three values on each candle:
+
+- **Middle band** — the simple moving average over `period` candles
+- **Upper band** — middle band + (`std_dev` × standard deviation)
+- **Lower band** — middle band − (`std_dev` × standard deviation)
+
+| Condition | Signal |
+|---|---|
+| Candle closes **above** the upper band | LONG |
+| Candle closes **below** the lower band | SHORT |
+| Candle closes inside the bands | NONE |
+
+A close outside the band indicates that price has moved beyond its recent statistical range, suggesting a breakout with directional momentum.
+
+<Note>
+  Bollinger Band breakout signals work best in high-volatility environments where strong momentum follows a squeeze or consolidation period. In low-volatility or ranging markets, price can repeatedly touch and re-enter the bands without sustained follow-through, leading to false breakout signals. Monitor the `std_dev` setting — a higher multiplier such as 2.5 reduces noise in choppy conditions.
+</Note>

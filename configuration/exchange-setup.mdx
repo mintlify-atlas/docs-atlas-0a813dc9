@@ -1,0 +1,221 @@
+---
+title: "Exchange Setup"
+description: "How to obtain API keys, configure exchange credentials, and connect to Binance, Bybit, or OKX Futures."
+---
+
+The bot supports three exchanges for futures trading: **Binance**, **Bybit**, and **OKX**. Set the `exchange` field in `config.json` to choose which one to connect to, then provide your API key and secret for that exchange.
+
+```json
+{
+  "exchange": "binance",
+  "api_key": "YOUR_API_KEY",
+  "api_secret": "YOUR_API_SECRET",
+  "testnet": false
+}
+```
+
+<Warning>
+Never share your API secret with anyone. Enable **IP whitelisting** on your exchange account so that your keys can only be used from your server's IP address. Use read-only keys for monitoring; enable futures trading permissions only when you intend to execute live trades.
+</Warning>
+
+---
+
+## Required API permissions
+
+Regardless of exchange, your API key must have the following permissions enabled:
+
+| Permission | Required for |
+|---|---|
+| **Futures trading** (read + write) | Opening and closing positions |
+| **Account balance read** | Position sizing and P&L dashboard |
+| **Order management** | Placing, modifying, and cancelling orders |
+
+Do **not** enable withdrawal permissions on a trading bot API key. This limits exposure if a key is ever compromised.
+
+---
+
+## Exchange configuration
+
+<Tabs>
+  <Tab title="Binance">
+    ### Creating a Binance Futures API key
+
+    <Steps>
+      <Step title="Log in to Binance">
+        Go to [binance.com](https://www.binance.com) and sign in to your account. Complete identity verification (KYC) if you have not already.
+      </Step>
+      <Step title="Open API Management">
+        Navigate to **Profile → API Management** (top-right user menu), then click **Create API**.
+      </Step>
+      <Step title="Choose API type">
+        Select **System generated** for a standard key pair. Give the key a descriptive label such as `signal-bot`.
+      </Step>
+      <Step title="Enable Futures trading">
+        In the key permissions panel, enable **Enable Futures**. Leave **Enable Withdrawals** unchecked.
+      </Step>
+      <Step title="Restrict to your IP">
+        Under **IP access restrictions**, choose **Restrict access to trusted IPs only** and add your server's public IP address.
+      </Step>
+      <Step title="Copy credentials">
+        Copy the **API Key** and **Secret Key** — the secret is shown only once. Paste them into `config.json`.
+      </Step>
+    </Steps>
+
+    **config.json snippet:**
+
+    ```json
+    {
+      "exchange": "binance",
+      "api_key": "your_binance_api_key",
+      "api_secret": "your_binance_api_secret"
+    }
+    ```
+
+    **Testnet (optional):**
+
+    Binance provides a Futures testnet at [testnet.binancefuture.com](https://testnet.binancefuture.com). Register separately, generate testnet API keys from that site, and set `"testnet": true` in your config.
+
+    ```json
+    {
+      "exchange": "binance",
+      "api_key": "your_testnet_api_key",
+      "api_secret": "your_testnet_api_secret",
+      "testnet": true
+    }
+    ```
+
+    <Note>
+      Binance Futures uses USDⓈ-M perpetual contracts. The bot connects to the `/fapi` endpoints (Futures API v1). Spot API keys are not compatible.
+    </Note>
+  </Tab>
+
+  <Tab title="Bybit">
+    ### Creating a Bybit API key
+
+    <Steps>
+      <Step title="Log in to Bybit">
+        Go to [bybit.com](https://www.bybit.com) and sign in. Complete KYC if required.
+      </Step>
+      <Step title="Open API Management">
+        Navigate to **Account → API** from the top menu, then click **Create New Key**.
+      </Step>
+      <Step title="Set key type and permissions">
+        Choose **API Transaction** (not read-only). Under permissions, enable **Contract — Orders and Positions** (USDT Perpetual).
+      </Step>
+      <Step title="Add IP restriction">
+        Enter your server's public IP address in the **Linked IP addresses** field.
+      </Step>
+      <Step title="Copy credentials">
+        Copy the **API Key** and **API Secret** shown on the confirmation screen. The secret is displayed only once.
+      </Step>
+      <Step title="Update config.json">
+        Set `"exchange": "bybit"` and paste your credentials.
+      </Step>
+    </Steps>
+
+    **config.json snippet:**
+
+    ```json
+    {
+      "exchange": "bybit",
+      "api_key": "your_bybit_api_key",
+      "api_secret": "your_bybit_api_secret"
+    }
+    ```
+
+    **Testnet (optional):**
+
+    Bybit's testnet is at [testnet.bybit.com](https://testnet.bybit.com). Create a separate account, generate testnet keys, and enable `"testnet": true`.
+
+    ```json
+    {
+      "exchange": "bybit",
+      "api_key": "your_bybit_testnet_key",
+      "api_secret": "your_bybit_testnet_secret",
+      "testnet": true
+    }
+    ```
+
+    <Note>
+      The bot uses Bybit API v5. Select **USDT Perpetual** contracts for futures trading. Inverse (coin-margined) contracts are not supported.
+    </Note>
+  </Tab>
+
+  <Tab title="OKX">
+    ### Creating an OKX API key
+
+    <Steps>
+      <Step title="Log in to OKX">
+        Go to [okx.com](https://www.okx.com) and sign in. Complete identity verification if prompted.
+      </Step>
+      <Step title="Open API Management">
+        Navigate to **Profile → API** from the top-right menu, then click **Create V5 API Key**.
+      </Step>
+      <Step title="Set permissions">
+        Set **Purpose** to **Trading**. Enable **Trade** permissions. Do not enable **Withdrawal**.
+      </Step>
+      <Step title="Add a passphrase">
+        OKX requires a **passphrase** in addition to the API key and secret. Set a strong passphrase and save it — you will need it in your config.
+      </Step>
+      <Step title="Add IP whitelist">
+        Enter your server's IP address under **IP Whitelist**.
+      </Step>
+      <Step title="Copy credentials">
+        Copy the **API Key**, **Secret Key**, and your passphrase.
+      </Step>
+    </Steps>
+
+    **config.json snippet:**
+
+    ```json
+    {
+      "exchange": "okx",
+      "api_key": "your_okx_api_key",
+      "api_secret": "your_okx_api_secret"
+    }
+    ```
+
+    <Note>
+      OKX uses API v5. The bot connects to **USDT-margined perpetual swap** contracts. OKX requires a passphrase for all authenticated requests — ensure your API key was created with one.
+    </Note>
+  </Tab>
+</Tabs>
+
+---
+
+## Testnet vs. live endpoints
+
+Setting `"testnet": true` routes all API calls to the exchange's sandbox environment. This is strongly recommended when first configuring the bot or testing a new strategy.
+
+| Setting | Binance endpoint | Bybit endpoint | Funds |
+|---|---|---|---|
+| `"testnet": false` | `fapi.binance.com` | `api.bybit.com` | Real money |
+| `"testnet": true` | `testnet.binancefuture.com` | `api-testnet.bybit.com` | Simulated funds |
+
+<Note>
+Testnet API keys are separate from live keys. You must register on the testnet site to generate testnet credentials — your live API key will not work on testnet endpoints.
+</Note>
+
+---
+
+## Switching exchanges
+
+To change exchanges, update the `exchange`, `api_key`, and `api_secret` fields in `config.json` and restart the bot. The `pairs` list must also contain symbols valid on the new exchange.
+
+```json
+{
+  "exchange": "bybit",
+  "api_key": "NEW_KEY",
+  "api_secret": "NEW_SECRET",
+  "pairs": ["BTCUSDT", "ETHUSDT"]
+}
+```
+
+<CardGroup cols={2}>
+  <Card title="Config File Reference" icon="file" href="/configuration/config-file">
+    Full list of every config.json field and its default value.
+  </Card>
+  <Card title="Risk Management" icon="shield" href="/configuration/risk-management">
+    Configure stop-loss, take-profit, leverage, and position limits.
+  </Card>
+</CardGroup>

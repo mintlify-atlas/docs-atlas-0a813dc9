@@ -1,0 +1,86 @@
+---
+title: "Position Manager"
+description: "View all open futures positions with real-time P&L, leverage, and strategy attribution."
+---
+
+## Overview
+
+The Position Manager displays a live table of every open position on your connected exchange account. Access it by selecting **option 7** from the [terminal menu](/usage/menu-reference).
+
+<Info>
+  Connect live API keys in `config.json` to see real position data. Without valid credentials the screen shows simulated positions for demonstration purposes.
+</Info>
+
+## Position Table Columns
+
+The table rendered by `action_position_manager` in `bot_actions.py` contains the following columns:
+
+| Column | Description |
+|--------|-------------|
+| `#` | Row index (1-based). |
+| `Pair` | Trading pair symbol, e.g. `BTCUSDT`. |
+| `Side` | Direction of the trade — **LONG** or **SHORT**. Color-coded green for LONG, red for SHORT. |
+| `Leverage` | Leverage multiplier applied to the position, e.g. `10x`. |
+| `Entry` | Average entry price in USD at the time the position was opened. |
+| `Size` | Notional position size in USDT. |
+| `P&L %` | Unrealised profit or loss as a percentage of the position size. Positive values are bright green; negative values are red. |
+| `P&L $` | Unrealised profit or loss in absolute USD. Color-coded the same as **P&L %**. |
+| `Strategy` | The strategy that generated the entry signal (e.g. `EMA Crossover`, `RSI Divergence`, `BB Breakout`, `MACD Momentum`). |
+
+## Example Output
+
+```
+╭─────────────────────────────────────────── OPEN POSITIONS ───────────────────────────────────────────╮
+│  # │ Pair      │  Side  │ Leverage │    Entry    │    Size   │  P&L %  │   P&L $   │ Strategy        │
+├────┼───────────┼────────┼──────────┼─────────────┼───────────┼─────────┼───────────┼─────────────────┤
+│  1 │ BTCUSDT   │  LONG  │   10x    │ $67,234.50  │ $250.00   │  +2.41% │   +$6.03  │ EMA Crossover   │
+│  2 │ ETHUSDT   │  SHORT │   20x    │  $3,498.00  │ $180.00   │  -1.15% │   -$2.07  │ RSI Divergence  │
+│  3 │ SOLUSDT   │  LONG  │    5x    │   $147.80   │  $95.00   │  +0.87% │   +$0.83  │ MACD Momentum   │
+╰────┴───────────┴────────┴──────────┴─────────────┴───────────┴─────────┴───────────┴─────────────────╯
+```
+
+## Side Color Coding
+
+| Side | Color | Meaning |
+|------|-------|---------|
+| `LONG` | Green | Expecting price to rise; profit when price goes up. |
+| `SHORT` | Red | Expecting price to fall; profit when price goes down. |
+
+P&L values follow the same color scheme: green for profit, red for loss.
+
+## Closing a Position
+
+<Warning>
+  The Position Manager is a **read-only** view. It does not provide an in-terminal close button.
+</Warning>
+
+To close an open position use one of these methods:
+
+<Steps>
+  <Step title="Exchange dashboard">
+    Log in to your exchange (Binance, Bybit, or OKX) and close the position from the Futures trading interface.
+  </Step>
+  <Step title="Exchange API">
+    Send a `POST /fapi/v1/order` (Binance) or equivalent close-position API request directly with `reduceOnly: true`.
+  </Step>
+  <Step title="Stop-loss / take-profit trigger">
+    If `stop_loss_pct` and `take_profit_pct` are configured in `config.json`, the bot will close the position automatically when those thresholds are hit during an active trading session.
+  </Step>
+</Steps>
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="P&L Dashboard" icon="chart-line" href="/usage/pnl-dashboard">
+    Aggregate performance metrics and per-pair breakdown.
+  </Card>
+  <Card title="Terminal Menu Reference" icon="terminal" href="/usage/menu-reference">
+    Full guide to every menu option.
+  </Card>
+  <Card title="Risk Management" icon="shield" href="/configuration/risk-management">
+    Configure stop-loss and take-profit thresholds.
+  </Card>
+  <Card title="Exchange Setup" icon="building-columns" href="/configuration/exchange-setup">
+    Connect your API keys to a live or testnet account.
+  </Card>
+</CardGroup>

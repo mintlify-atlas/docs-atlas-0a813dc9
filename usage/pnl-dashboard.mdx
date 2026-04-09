@@ -1,0 +1,98 @@
+---
+title: "P&L Dashboard"
+description: "Real-time profit and loss overview with aggregate metrics and per-pair performance breakdown."
+---
+
+## Overview
+
+The P&L Dashboard gives you a snapshot of your trading performance across all active pairs. Access it by selecting **option 8** from the [terminal menu](/usage/menu-reference).
+
+The screen is split into two tables:
+
+1. **Summary metrics** — aggregate stats for the entire account.
+2. **Per-pair breakdown** — individual statistics for each configured trading pair.
+
+<Info>
+  Connect live API keys in `config.json` to see real metrics. Without valid credentials the dashboard shows simulated data for demonstration purposes.
+</Info>
+
+## Summary Metrics
+
+The summary table rendered by `action_pnl_dashboard` in `bot_actions.py` contains these metrics:
+
+| Metric | Description |
+|--------|-------------|
+| **Total P&L** | Net realised + unrealised profit or loss in USD across all trades. Positive values are shown in bright green; negative values in red. |
+| **Win Rate** | Percentage of closed trades that finished in profit. |
+| **Total Trades** | Total number of trades executed in the current session or history window. |
+| **Wins / Losses** | Absolute count of winning trades (green) and losing trades (red). |
+| **Best Trade** | Highest single-trade profit in USD. |
+| **Worst Trade** | Largest single-trade loss in USD. |
+| **Avg Trade Duration** | Mean time a position was held open, expressed in minutes. |
+| **Active Positions** | Number of positions currently open on the exchange. |
+
+### Example Summary Table
+
+```
+╔══════════════════════════ P&L DASHBOARD ══════════════════════════╗
+║ Metric                  │ Value                                   ║
+╠═════════════════════════╪═════════════════════════════════════════╣
+║ Total P&L               │ +$342.18                                ║
+║ Win Rate                │ 67.3%                                   ║
+║ Total Trades            │ 52                                      ║
+║ Wins / Losses           │ 35 / 17                                 ║
+║ Best Trade              │ +$124.55                                ║
+║ Worst Trade             │ -$48.20                                 ║
+║ Avg Trade Duration      │ 38 min                                  ║
+║ Active Positions        │ 3                                       ║
+╚═════════════════════════╧═════════════════════════════════════════╝
+```
+
+## Per-Pair Breakdown
+
+Below the summary, a second table shows performance broken down by each trading pair listed in `config.json → pairs`.
+
+| Column | Description |
+|--------|-------------|
+| **Pair** | Trading pair symbol, e.g. `BTCUSDT`. |
+| **Trades** | Number of trades executed for this pair. |
+| **P&L** | Net profit or loss in USD for this pair. Color-coded green/red. |
+| **Win %** | Win rate specific to this pair. |
+
+### Example Per-Pair Table
+
+```
+ PER-PAIR BREAKDOWN
+ Pair        Trades   P&L         Win %
+─────────────────────────────────────────
+ BTCUSDT     18       +$198.40    72.2%
+ ETHUSDT     21       +$87.60     61.9%
+ SOLUSDT     13       +$56.18     69.2%
+```
+
+## Interpreting Results
+
+<Tip>
+  A **win rate above 50%** is generally sustainable only when the average winning trade is larger than the average losing trade. Use the **Best Trade** and **Worst Trade** metrics together with win rate to evaluate strategy quality.
+</Tip>
+
+- **Total P&L negative with high win rate** — your losing trades are larger than your winning trades. Consider tightening take-profit or widening stop-loss.
+- **Total P&L positive with low win rate** — your winners are significantly larger than losers. This is a valid asymmetric strategy but can feel psychologically difficult.
+- **Avg Trade Duration very short** — may indicate the strategy is over-trading; review signal frequency settings.
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Position Manager" icon="table-list" href="/usage/position-manager">
+    View individual open positions with per-trade P&L.
+  </Card>
+  <Card title="Strategy Configuration" icon="sliders" href="/strategies/overview">
+    Tune strategy parameters to improve win rate and average return.
+  </Card>
+  <Card title="Risk Management" icon="shield" href="/configuration/risk-management">
+    Set stop-loss, take-profit, and daily loss limits.
+  </Card>
+  <Card title="Exchange Setup" icon="building-columns" href="/configuration/exchange-setup">
+    Connect live API keys to replace simulated data.
+  </Card>
+</CardGroup>

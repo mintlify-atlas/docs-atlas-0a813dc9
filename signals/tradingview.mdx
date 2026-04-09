@@ -1,0 +1,107 @@
+---
+title: "TradingView Webhook"
+description: "Receive TradingView Pine Script alert payloads via an HTTP webhook server built into the bot."
+---
+
+When `signal_source` is set to `"tradingview"`, the bot starts a lightweight HTTP server that listens for incoming webhook requests from TradingView. Every time a Pine Script alert fires, TradingView sends a JSON payload to your configured URL — the bot receives it, parses the signal, and forwards it to the trading engine.
+
+The webhook port is controlled by the `tradingview_webhook_port` field in `config.json` (default: `8080`).
+
+## Setup guide
+
+<Steps>
+  <Step title="Set signal_source to tradingview in config.json">
+    Open `config.json` and update the `signal_source` field:
+
+    ```json
+    {
+      "signal_source": "tradingview"
+    }
+    ```
+
+    This tells the bot to start the webhook server instead of a Telegram listener when you connect.
+  </Step>
+  <Step title="Configure the webhook port">
+    Set the port the HTTP server will listen on. The default is `8080`. Change it if that port is already in use on your machine:
+
+    ```json
+    {
+      "signal_source": "tradingview",
+      "tradingview_webhook_port": 8080
+    }
+    ```
+
+    Choose any available port above `1024` if you are running without root/administrator privileges.
+  </Step>
+  <Step title="Set the webhook URL in your TradingView alert">
+    In TradingView, open or create an alert on your chart or indicator. In the **Notifications** tab, enable **Webhook URL** and enter:
+
+    ```
+    http://YOUR_SERVER_IP:8080
+    ```
+
+    Replace `YOUR_SERVER_IP` with the public IP address of the machine running the bot, and `8080` with your configured port.
+
+    In the **Message** field, provide the JSON payload your alert should send. A minimal example:
+
+    ```json
+    {
+      "pair": "{{ticker}}",
+      "side": "LONG",
+      "price": {{close}}
+    }
+    ```
+
+    TradingView supports template variables such as `{{ticker}}`, `{{close}}`, `{{time}}`, and `{{strategy.order.action}}` inside the message body.
+  </Step>
+  <Step title="Connect via the terminal menu">
+    Run the bot and choose **option 4 — Connect Signal Source** from the main menu:
+
+    ```
+    Select signal source:
+      1 — Telegram Channel
+      2 — TradingView Webhook
+      3 — Custom API Endpoint
+
+    Source [1/2/3]: 2
+    ```
+
+    Select **2**. The bot starts the HTTP server and confirms it is ready:
+
+    ```
+    ✓ TradingView webhook server ready on port 8080
+    ```
+
+    The server remains active until you exit the bot. Alerts fired from TradingView while the server is running are processed immediately.
+  </Step>
+</Steps>
+
+## config.json reference
+
+```json
+{
+  "signal_source": "tradingview",
+  "tradingview_webhook_port": 8080
+}
+```
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `signal_source` | string | `"telegram"` | Set to `"tradingview"` to use the webhook server |
+| `tradingview_webhook_port` | integer | `8080` | Port the HTTP webhook listener binds to |
+
+## How the webhook server works
+
+When you connect with source option 2, the bot binds an HTTP server to `0.0.0.0:<port>`. TradingView sends a `POST` request to that address every time a matching alert condition is met. The request body contains the JSON message you configured in the alert's **Message** field.
+
+The bot reads the payload, extracts the pair, direction, and price data, and passes the signal to the execution engine — the same pipeline used by all other signal sources.
+
+<Note>
+  For TradingView to reach your webhook server, the machine running the bot must be **publicly accessible on the configured port**. This typically requires one or more of the following:
+
+  - **Port forwarding** on your router (home server) — forward external port 8080 to the bot machine's local IP.
+  - **Firewall rule** — allow inbound TCP traffic on the webhook port (e.g. `ufw allow 8080/tcp` on Ubuntu).
+  - **Cloud/VPS deployment** — if running on a VPS, open the port in your provider's security group or firewall dashboard.
+
+  TradingView does not support sending webhooks to `localhost` or private RFC 1918 addresses. Use a VPS or a tunnel service such as [ngrok](https://ngrok.com) for local development.
+</Note>

@@ -1,0 +1,59 @@
+---
+title: 'EMA Crossover Strategy'
+description: 'Trend-following strategy that generates long and short signals based on fast and slow exponential moving average crossovers.'
+keywords: ['ema', 'exponential moving average', 'crossover', 'trend following', 'strategy']
+---
+
+Generates long signals when the fast EMA (default 9) crosses above the slow EMA (default 21), and short signals on the inverse. Best suited for trending markets on 15m–4h timeframes.
+
+## Configuration
+
+```json config.json
+{
+  "strategies": {
+    "ema_crossover": {
+      "enabled": true,
+      "fast": 9,
+      "slow": 21
+    }
+  }
+}
+```
+
+## Parameters
+
+<ParamField path="enabled" type="boolean" default="true">
+  Activates or deactivates the EMA Crossover strategy. Set to `false` to disable without removing the configuration block.
+</ParamField>
+
+<ParamField path="fast" type="integer" default="9">
+  The lookback period for the fast exponential moving average. A smaller value makes the fast EMA more responsive to recent price changes.
+</ParamField>
+
+<ParamField path="slow" type="integer" default="21">
+  The lookback period for the slow exponential moving average. Must be greater than `fast`. A larger value produces a smoother, slower-reacting average.
+</ParamField>
+
+## Signal logic
+
+The strategy computes two EMAs on the close price of each candle and compares their relative positions across consecutive bars.
+
+| Condition | Signal |
+|---|---|
+| Fast EMA crosses **above** slow EMA | LONG |
+| Fast EMA crosses **below** slow EMA | SHORT |
+| No crossover detected | NONE |
+
+A crossover is confirmed when the relationship between the two EMAs changes from one candle to the next — the fast EMA must be below the slow EMA on the previous bar and above it on the current bar (or vice versa for short signals).
+
+## Recommended timeframes
+
+The EMA Crossover strategy works best on intermediate timeframes where trends develop with enough structure to produce reliable crossovers:
+
+- **15m** — faster signals, more frequent trades, higher noise
+- **1h** — balanced between frequency and reliability
+- **4h** — fewer signals, higher quality, lower noise
+
+<Tip>
+  This strategy performs best in trending markets with sustained directional momentum. In choppy or ranging conditions, the fast and slow EMAs will cross repeatedly without follow-through, generating false signals. Consider disabling or reducing position size during low-volatility consolidation phases.
+</Tip>

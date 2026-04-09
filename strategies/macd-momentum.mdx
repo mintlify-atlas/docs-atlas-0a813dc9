@@ -1,0 +1,66 @@
+---
+title: 'MACD Momentum Strategy'
+description: 'Trades MACD histogram crossovers with signal line confirmation, filtering noise using zero-line alignment for trend direction.'
+keywords: ['macd', 'moving average convergence divergence', 'histogram', 'momentum', 'signal line', 'strategy']
+---
+
+Trades MACD histogram crossovers with signal line confirmation. Filters out noise using minimum histogram threshold and trend alignment via the zero line.
+
+## Configuration
+
+```json config.json
+{
+  "strategies": {
+    "macd_momentum": {
+      "enabled": true,
+      "fast": 12,
+      "slow": 26,
+      "signal": 9
+    }
+  }
+}
+```
+
+## Parameters
+
+<ParamField path="enabled" type="boolean" default="true">
+  Activates or deactivates the MACD Momentum strategy. Set to `false` to disable without removing the configuration block.
+</ParamField>
+
+<ParamField path="fast" type="integer" default="12">
+  The period for the fast EMA used in the MACD calculation. The MACD line is derived by subtracting the slow EMA from the fast EMA. A smaller value makes the fast EMA more responsive.
+</ParamField>
+
+<ParamField path="slow" type="integer" default="26">
+  The period for the slow EMA used in the MACD calculation. Must be greater than `fast`. A larger value produces a smoother slow EMA, increasing the sensitivity of the MACD line to momentum shifts.
+</ParamField>
+
+<ParamField path="signal" type="integer" default="9">
+  The smoothing period for the signal line — an EMA applied to the MACD line. The histogram is computed as the difference between the MACD line and the signal line. A smaller value makes the signal line react faster to MACD changes.
+</ParamField>
+
+## Signal logic
+
+The strategy computes three derived values:
+
+- **MACD line** — fast EMA minus slow EMA
+- **Signal line** — EMA of the MACD line over the `signal` period
+- **Histogram** — MACD line minus signal line
+
+### Histogram crossover
+
+A signal is generated when the histogram crosses zero — that is, when the MACD line crosses the signal line.
+
+| Condition | Signal |
+|---|---|
+| Histogram crosses from negative to positive (MACD crosses above signal line) | LONG |
+| Histogram crosses from positive to negative (MACD crosses below signal line) | SHORT |
+| No crossover | NONE |
+
+### Signal line confirmation
+
+The crossover must be confirmed by the signal line direction. A LONG signal requires the signal line itself to be rising at the time of the crossover; a SHORT signal requires it to be falling.
+
+<Tip>
+  The zero line acts as a trend filter. When the MACD line is above zero, the short-term average is higher than the long-term average, indicating bullish underlying momentum. When below zero, bearish momentum dominates. Histogram crossovers that occur on the same side of the zero line as the prevailing trend (LONG signals above zero, SHORT signals below zero) tend to have higher follow-through rates. Crossovers against the zero-line bias are more likely to be countertrend retracements.
+</Tip>

@@ -1,0 +1,88 @@
+---
+title: "Terminal Menu Reference"
+description: "Complete reference for all options in the Binance Futures Signal Bot interactive terminal menu."
+---
+
+## Launching the Bot
+
+Start the bot from your terminal. On first run it will automatically install `rich` and `cryptography` if they are missing.
+
+<CodeGroup>
+
+```bash Python (all platforms)
+python main.py
+```
+
+```batch Windows
+run.bat
+```
+
+```bash Linux / macOS
+chmod +x run.sh
+./run.sh
+```
+
+</CodeGroup>
+
+After launch the banner and menu table are printed to the terminal.
+
+## Terminal Menu
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║  ____  _                              _____      _             ║
+║ | __ )(_)_ __   __ _ _ __   ___ ___ |  ___|   _| |_           ║
+║ |  _ \| | '_ \ / _` | '_ \ / __/ _ \| |_ | | | | __|         ║
+║ | |_) | | | | | (_| | | | | (_|  __/|  _|| |_| | |_           ║
+║ |____/|_|_| |_|\__,_|_| |_|\___\___||_|   \__,_|\__|          ║
+╚══════════════════════════════════════════════════════════════════╝
+╭────┬──────────────────────────────┬──────────────────────────────╮
+│  # │ Action                       │ Description                  │
+├────┼──────────────────────────────┼──────────────────────────────┤
+│  1 │ Install Dependencies         │ pip install -r requirements  │
+│  2 │ Settings                     │ API keys, exchange, leverage │
+│  3 │ About                        │ Features & documentation     │
+│  4 │ Connect Signal Source        │ Telegram / TradingView / API │
+│  5 │ Start Auto Trading           │ Begin automated execution    │
+│  6 │ Strategy Configuration       │ EMA / RSI / BB / MACD        │
+│  7 │ Position Manager             │ View & close open positions  │
+│  8 │ P&L Dashboard                │ Real-time profit & loss      │
+│  0 │ Exit                         │ Quit Signal Bot              │
+╰────┴──────────────────────────────┴──────────────────────────────╯
+```
+
+Type the option number and press **Enter**.
+
+## Menu Options
+
+| # | Action | Description |
+|---|--------|-------------|
+| `1` | Install Dependencies | Runs `pip install -r requirements.txt` inside the bot's environment. Use this on first run or after pulling an update. |
+| `2` | Settings | Displays all configurable fields (API keys, exchange, leverage, signal source, testnet) and the path to `config.json`. Edit the file with any text editor. |
+| `3` | About | Shows feature highlights, supported exchanges, and project documentation links. |
+| `4` | Connect Signal Source | Prompts you to choose a signal provider: **Telegram** channel, **TradingView** webhook, or a **Custom API** endpoint. Reads the relevant credentials from `config.json`. |
+| `5` | Start Auto Trading | Initialises the trading engine, connects WebSocket market feeds, syncs account balances, and begins automated trade execution based on active strategies and incoming signals. |
+| `6` | Strategy Configuration | Displays the current status and parameters for all four strategies (EMA Crossover, RSI Divergence, Bollinger Breakout, MACD Momentum). Edit parameters in `config.json` under the `strategies` key. |
+| `7` | Position Manager | Opens a real-time table of all open positions with side, leverage, entry price, size, P&L %, and P&L $. See [Position Manager](/usage/position-manager). |
+| `8` | P&L Dashboard | Shows aggregate performance metrics (total P&L, win rate, trade count) and a per-pair breakdown table. See [P&L Dashboard](/usage/pnl-dashboard). |
+| `0` | Exit | Gracefully shuts down the bot and exits the process. |
+
+## Typical First-Run Workflow
+
+<Steps>
+  <Step title="Install dependencies">
+    Select **1 — Install Dependencies** to install all required packages from `requirements.txt`.
+  </Step>
+  <Step title="Configure API keys and exchange">
+    Select **2 — Settings** to review the config fields, then open `config.json` in a text editor and fill in your `api_key`, `api_secret`, and target `exchange`.
+  </Step>
+  <Step title="Connect a signal source">
+    Select **4 — Connect Signal Source** and choose Telegram, TradingView, or Custom API. Ensure the corresponding credentials are set in `config.json` first.
+  </Step>
+  <Step title="(Optional) Enable testnet">
+    Set `"testnet": true` in `config.json` to trade against sandbox endpoints before using real funds. See [Testnet Mode](/usage/testnet).
+  </Step>
+  <Step title="Start trading">
+    Select **5 — Start Auto Trading** to begin automated execution.
+  </Step>
+</Steps>

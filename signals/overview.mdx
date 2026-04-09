@@ -1,0 +1,63 @@
+---
+title: "Signal Sources Overview"
+description: "How the bot receives trade signals and which source integrations are available."
+---
+
+The Binance Futures Signal Bot does not generate signals internally by default — instead, it **listens to an external signal source** and acts on the instructions it receives. You choose one source at a time, configured via the `signal_source` field in `config.json`.
+
+When you select **"Connect Signal Source"** (menu option 4) the bot establishes a live connection to whichever source is active and begins routing incoming signals to the trading engine.
+
+## The `signal_source` field
+
+Set this field in `config.json` to one of three accepted values:
+
+| Value | Signal source |
+|---|---|
+| `"telegram"` | Listens for messages in a Telegram channel via a bot you control |
+| `"tradingview"` | Starts an HTTP webhook server and receives TradingView alert payloads |
+| `"api"` | Connects to a custom HTTP API or proprietary signal provider |
+
+```json
+{
+  "signal_source": "telegram"
+}
+```
+
+Only one source is active at a time. To switch, update `signal_source` in `config.json` and reconnect via the terminal menu.
+
+## Switching signal sources
+
+1. Open `config.json` in any text editor.
+2. Change `signal_source` to your desired value (`"telegram"`, `"tradingview"`, or `"api"`).
+3. Save the file.
+4. In the bot terminal, choose option **4 — Connect Signal Source** and select the matching source number.
+
+The bot reads `config.json` on each menu action, so no restart is required — just reconnect.
+
+## Available signal sources
+
+<CardGroup cols={2}>
+  <Card title="Telegram" icon="paper-plane" href="/signals/telegram">
+    Receive signals from a Telegram channel using a bot token and channel ID. The most common setup for premium signal groups.
+  </Card>
+  <Card title="TradingView Webhook" icon="chart-line" href="/signals/tradingview">
+    Accept JSON alert payloads directly from TradingView Pine Script alerts via an HTTP webhook server.
+  </Card>
+  <Card title="Custom API" icon="code" href="/signals/custom-api">
+    Connect your own signal server or proprietary strategy provider over HTTP.
+  </Card>
+  <Card title="Configuration Reference" icon="gear" href="/configuration/config-file">
+    See all available `config.json` fields including exchange, leverage, and risk management settings.
+  </Card>
+</CardGroup>
+
+## Comparison table
+
+| Feature | Telegram | TradingView | Custom API |
+|---|---|---|---|
+| Config key | `"telegram"` | `"tradingview"` | `"api"` |
+| Requires bot setup | Yes (BotFather) | No | No |
+| Requires open port | No | Yes (default 8080) | Depends on provider |
+| Signal format | Text message | JSON payload | Custom |
+| Typical use case | Premium signal groups | Pine Script alerts | Proprietary strategies |
+| Menu option | 1 | 2 | 3 |

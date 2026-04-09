@@ -1,0 +1,101 @@
+---
+title: "Telegram Signal Integration"
+description: "Connect the bot to a Telegram signal channel using a bot token and channel ID."
+---
+
+The Telegram integration lets the bot listen to a Telegram channel for trade signals. This is the default `signal_source` and the most common setup for users who subscribe to premium signal groups or run their own Telegram-based alert system.
+
+The bot authenticates with Telegram using a bot token, joins your signal channel as a listener, and forwards parsed signal messages to the trading engine in real time.
+
+## Setup guide
+
+<Steps>
+  <Step title="Create a bot via @BotFather">
+    Open Telegram and start a chat with [@BotFather](https://t.me/BotFather). Send the `/newbot` command and follow the prompts to name your bot. BotFather will issue a **bot token** in the format:
+
+    ```
+    123456789:ABCdefGhIJKlmNoPQRstuVWXyz
+    ```
+
+    Copy this token — you will need it in a later step.
+  </Step>
+  <Step title="Add the bot to your signal channel as an admin">
+    Open your signal channel in Telegram. Go to **Manage Channel → Administrators → Add Administrator** and search for your bot by its username. Grant it at minimum **read messages** permission so it can receive signal posts.
+  </Step>
+  <Step title="Get the channel ID">
+    The channel ID is a negative integer that starts with `-100` (e.g. `-1001234567890`). To find it:
+
+    - Forward any message from the channel to [@username_to_id_bot](https://t.me/username_to_id_bot), or
+    - Use the Telegram Bot API: `https://api.telegram.org/bot<TOKEN>/getUpdates` and look for `"chat": {"id": ...}` after posting a message.
+
+    The channel ID always starts with `-100` for public and private supergroups/channels.
+  </Step>
+  <Step title="Set the token and channel ID in config.json">
+    Open `config.json` and populate the Telegram fields:
+
+    ```json
+    {
+      "signal_source": "telegram",
+      "telegram_bot_token": "123456789:ABCdefGhIJKlmNoPQRstuVWXyz",
+      "telegram_channel_id": "-1001234567890"
+    }
+    ```
+
+    The `signal_source` field **must** be set to `"telegram"` for this integration to activate.
+  </Step>
+  <Step title="Connect via the terminal menu">
+    Run the bot and choose **option 4 — Connect Signal Source** from the main menu:
+
+    ```
+    Select signal source:
+      1 — Telegram Channel
+      2 — TradingView Webhook
+      3 — Custom API Endpoint
+
+    Source [1/2/3]: 1
+    ```
+
+    Select **1**. The bot will verify your token and channel ID, then print a confirmation:
+
+    ```
+    ✓ Telegram listener active — channel -1001234567890
+    ```
+
+    If the token or channel ID is missing, the bot will display a warning and prompt you to configure them in Settings.
+  </Step>
+</Steps>
+
+## config.json reference
+
+```json
+{
+  "signal_source": "telegram",
+  "telegram_bot_token": "123456789:ABCdefGhIJKlmNoPQRstuVWXyz",
+  "telegram_channel_id": "-1001234567890"
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `signal_source` | string | Must be `"telegram"` to activate this integration |
+| `telegram_bot_token` | string | Bot token from BotFather |
+| `telegram_channel_id` | string | Channel ID, begins with `-100` |
+
+## What a valid signal message looks like
+
+The bot parses incoming Telegram messages from the configured channel. A typical signal post from a provider looks like:
+
+```
+BTCUSDT LONG
+Entry: 67,500
+TP1: 68,200
+TP2: 69,000
+SL: 66,800
+Leverage: 10x
+```
+
+The bot extracts the trading pair, direction (LONG/SHORT), and price levels, then passes the parsed signal to the execution engine. Message format requirements depend on your signal provider — ensure the channel you connect produces structured messages the bot can parse.
+
+<Warning>
+  Keep your bot token private. Anyone with the token can control your bot and read messages from any channel it is a member of. Never commit `config.json` to a public repository, share it in screenshots, or paste it in chat. Use environment variables or a secrets manager for production deployments.
+</Warning>

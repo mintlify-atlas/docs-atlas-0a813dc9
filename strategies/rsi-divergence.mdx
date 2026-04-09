@@ -1,0 +1,68 @@
+---
+title: 'RSI Divergence Strategy'
+description: 'Detects bullish and bearish divergence between price action and the RSI oscillator, with configurable overbought and oversold thresholds.'
+keywords: ['rsi', 'relative strength index', 'divergence', 'overbought', 'oversold', 'strategy']
+---
+
+Detects bullish divergence when price makes lower lows but RSI makes higher lows, and bearish divergence on the inverse. Configurable overbought/oversold thresholds with period adjustment.
+
+## Configuration
+
+```json config.json
+{
+  "strategies": {
+    "rsi_divergence": {
+      "enabled": true,
+      "period": 14,
+      "overbought": 70,
+      "oversold": 30
+    }
+  }
+}
+```
+
+## Parameters
+
+<ParamField path="enabled" type="boolean" default="true">
+  Activates or deactivates the RSI Divergence strategy. Set to `false` to disable without removing the configuration block.
+</ParamField>
+
+<ParamField path="period" type="integer" default="14">
+  The RSI lookback period — the number of candles used to calculate the RSI value. The standard value of 14 is widely used. Shorter periods produce more volatile RSI readings; longer periods produce smoother but slower signals.
+</ParamField>
+
+<ParamField path="overbought" type="integer" default="70">
+  The RSI level above which the asset is considered overbought. Bearish divergence signals are only evaluated when the RSI is at or above this threshold.
+</ParamField>
+
+<ParamField path="oversold" type="integer" default="30">
+  The RSI level below which the asset is considered oversold. Bullish divergence signals are only evaluated when the RSI is at or below this threshold.
+</ParamField>
+
+## Signal logic
+
+Divergence is detected by comparing recent price swing lows (or highs) against the corresponding RSI values. The strategy looks back across recent candles to identify the two most recent swing points.
+
+### Bullish divergence (LONG signal)
+
+A bullish divergence occurs when:
+
+1. Price forms a **lower low** — the most recent trough is below the previous trough.
+2. RSI forms a **higher low** — the RSI value at the most recent trough is above the RSI at the previous trough.
+3. RSI is at or below the `oversold` threshold at the time of detection.
+
+This divergence signals weakening bearish momentum and a potential reversal to the upside.
+
+### Bearish divergence (SHORT signal)
+
+A bearish divergence occurs when:
+
+1. Price forms a **higher high** — the most recent peak is above the previous peak.
+2. RSI forms a **lower high** — the RSI value at the most recent peak is below the RSI at the previous peak.
+3. RSI is at or above the `overbought` threshold at the time of detection.
+
+This divergence signals weakening bullish momentum and a potential reversal to the downside.
+
+<Tip>
+  The default overbought/oversold levels of 70/30 work well across most market conditions. In strongly trending markets, RSI can remain overbought or oversold for extended periods. Consider widening the thresholds to 80/20 in trending environments to reduce false divergence signals, or tightening them to 65/35 in ranging markets to catch reversals earlier.
+</Tip>

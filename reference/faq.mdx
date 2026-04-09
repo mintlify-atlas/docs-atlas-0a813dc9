@@ -1,0 +1,199 @@
+---
+title: 'Frequently asked questions'
+description: 'Answers to common questions about exchange support, Telegram setup, leverage, strategies, API key security, trailing stop-loss, and testnet usage.'
+keywords: ['faq', 'help', 'telegram', 'leverage', 'api key', 'testnet', 'trailing stop']
+---
+
+<AccordionGroup>
+  <Accordion title="Which exchanges are supported?">
+    The bot currently supports three exchanges for futures trading:
+
+    | Exchange | Market type | Pairs (examples) |
+    |----------|-------------|------------------|
+    | **Binance** | USDⓈ-M Futures Perpetual | BTCUSDT, ETHUSDT |
+    | **Bybit** | USDT Perpetual | BTCUSDT, SOLUSDT |
+    | **OKX** | Perpetual Swap | BTC-USDT-SWAP |
+
+    Set your exchange in `config.json`:
+
+    ```json
+    {
+      "exchange": "binance"
+    }
+    ```
+
+    Valid values are `"binance"`, `"bybit"`, and `"okx"`. You can also change this via the **Settings** menu when you run `python main.py`.
+
+    <Note>
+      Multi-exchange mode — running the bot simultaneously across multiple exchanges — is planned for a future release.
+    </Note>
+  </Accordion>
+
+  <Accordion title="How do I connect a Telegram signal channel?">
+    Connecting a Telegram signal channel takes four steps:
+
+    <Steps>
+      <Step title="Create a bot with BotFather">
+        Open Telegram and start a conversation with [@BotFather](https://t.me/BotFather). Send the `/newbot` command and follow the prompts to name your bot. BotFather will provide a token in the format:
+
+        ```
+        123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ
+        ```
+      </Step>
+      <Step title="Add the bot to your signal channel">
+        Open your signal channel settings, go to **Administrators**, and add your bot as an admin. The bot needs at least **read messages** permission.
+      </Step>
+      <Step title="Get the channel ID">
+        The channel ID starts with `-100` followed by digits (e.g. `-1001234567890`). You can find it by forwarding a message from the channel to [@userinfobot](https://t.me/userinfobot) or by inspecting the Telegram Web URL.
+      </Step>
+      <Step title="Enter the values in config.json">
+        Add both values to your configuration file:
+
+        ```json
+        {
+          "signal_source": "telegram",
+          "telegram_bot_token": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
+          "telegram_channel_id": "-1001234567890"
+        }
+        ```
+
+        Alternatively, set them via the **Settings** menu (option 2) when you run `python main.py`.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="What leverage should I use?">
+    **Start with 2x–5x leverage while you are testing and validating your strategy.**
+
+    The bot supports leverage from 1x up to 125x, matching Binance Futures maximums. However, higher leverage dramatically amplifies both profits and losses:
+
+    | Leverage | Risk level | Use case |
+    |----------|------------|----------|
+    | 1x – 5x  | Low        | Testing, conservative strategies |
+    | 5x – 20x | Moderate   | Experienced traders with defined risk |
+    | 20x+     | Extremely high | Not recommended |
+
+    Set leverage in `config.json`:
+
+    ```json
+    {
+      "leverage": 5
+    }
+    ```
+
+    At 20x leverage, a 5% adverse move wipes out your entire position. Always pair any leverage with a stop-loss:
+
+    ```json
+    {
+      "risk_management": {
+        "stop_loss_pct": 2.0
+      }
+    }
+    ```
+
+    <Warning>
+      Values above 20x are extremely risky. A single unexpected wick can liquidate your position before the stop-loss triggers. Never use high leverage without fully understanding the implications.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Can I run multiple strategies simultaneously?">
+    Yes. Each strategy can be independently enabled or disabled in `config.json` under the `strategies` key:
+
+    ```json
+    {
+      "strategies": {
+        "ema_crossover":    { "enabled": true,  "fast": 9,  "slow": 21 },
+        "rsi_divergence":   { "enabled": true,  "period": 14, "overbought": 70, "oversold": 30 },
+        "bollinger_breakout": { "enabled": false, "period": 20, "std_dev": 2.0 },
+        "macd_momentum":    { "enabled": true,  "fast": 12, "slow": 26, "signal": 9 }
+      }
+    }
+    ```
+
+    When multiple strategies are active, the bot evaluates all of them on every candle close. The signal with the highest confidence score wins. If active strategies produce conflicting signals (e.g. one is long, another is short), those signals are filtered and no trade is placed for that candle.
+
+    This approach prevents strategies from fighting each other and avoids opening opposing positions on the same pair at the same time.
+  </Accordion>
+
+  <Accordion title="Is my API key stored securely?">
+    API keys are stored locally in `config.json`. The file is listed in `.gitignore` by default, which prevents it from being accidentally committed to a Git repository.
+
+    **Best practices for API key security:**
+
+    1. **Never commit `config.json` to version control.** Verify your `.gitignore` includes it before running `git add`.
+
+    2. **Restrict file permissions** on servers to prevent other users from reading the file:
+
+    ```bash
+    chmod 600 config.json
+    ```
+
+    3. **Use encrypted vaults** such as HashiCorp Vault, AWS Secrets Manager, or system keychain tools for server deployments — populate `config.json` at startup from the vault rather than storing credentials on disk permanently.
+
+    4. **Enable IP whitelisting** on your exchange API key. This restricts key usage to a specific IP address, so a leaked key cannot be used from other locations.
+
+    5. **Do not enable withdrawal permissions.** The bot only needs futures trading and read access.
+
+    <Warning>
+      If you suspect your API key has been exposed, revoke it immediately on the exchange and generate a new one.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="How does trailing stop-loss work?">
+    The trailing stop-loss automatically follows price as it moves in your favor, locking in profit while keeping the position open for continued gains.
+
+    **How it activates:**
+
+    Once a position's unrealized profit reaches the `trailing_stop_pct` threshold, the trailing stop becomes active. The stop price is then set at `trailing_stop_pct` below (for longs) or above (for shorts) the current price.
+
+    **How it trails:**
+
+    As price moves further in your favor, the stop price follows at the same percentage distance. The stop only moves in the favorable direction — it never moves backward.
+
+    **When it closes:**
+
+    If price reverses from its peak by `trailing_stop_pct`, the stop triggers and the position closes automatically.
+
+    Configure it in `config.json`:
+
+    ```json
+    {
+      "trailing_stop_pct": 1.5
+    }
+    ```
+
+    **Example (long position, `trailing_stop_pct: 1.5`):**
+
+    | Event | Price | Stop level |
+    |-------|-------|------------|
+    | Entry | $100  | — (not yet active) |
+    | Profit hits 1.5% | $101.50 | $100.00 (trailing activates) |
+    | Price rises to $105 | $105 | $103.43 (stop follows) |
+    | Price drops to $103.43 | $103.43 | Position closes |
+
+    <Tip>
+      Use `trailing_stop_pct` alongside `stop_loss_pct` in the `risk_management` block. The fixed stop-loss protects against gaps and sudden moves before the trailing stop activates.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Does the bot work on testnet?">
+    Yes. Both Binance and Bybit testnet environments are supported. Enable testnet mode in `config.json`:
+
+    ```json
+    {
+      "testnet": true
+    }
+    ```
+
+    When `testnet` is `true`, all API requests are routed to the exchange's paper trading environment. No real funds are used.
+
+    **Testnet limitations to be aware of:**
+    - Testnet liquidity is lower than production, so fills may behave differently.
+    - Not all trading pairs available in production exist on testnet.
+    - Testnet API keys are separate from production keys — generate them on the exchange's testnet portal.
+
+    <Tip>
+      Always validate new strategies on testnet with low leverage before deploying them with real funds. See the [testnet guide](/usage/testnet) for a full walkthrough.
+    </Tip>
+  </Accordion>
+</AccordionGroup>

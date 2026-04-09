@@ -1,0 +1,60 @@
+---
+title: 'Trading Strategies Overview'
+description: 'Understand the multi-strategy engine and how to enable or disable individual strategies in config.json.'
+keywords: ['strategies', 'ema crossover', 'rsi divergence', 'bollinger breakout', 'macd momentum', 'multi-strategy']
+---
+
+The bot includes a multi-strategy engine that can run multiple technical analysis strategies simultaneously. Each strategy evaluates incoming candle data independently and emits a directional signal — LONG, SHORT, or NONE.
+
+## How the engine works
+
+The bot evaluates all active strategies per candle and takes the highest-confidence signal. Conflicting signals are filtered to avoid entering a position where strategies disagree on direction.
+
+This means you can enable several strategies at once without them interfering. The engine aggregates their outputs and only acts when there is sufficient agreement or a clearly dominant signal.
+
+## Enabling and disabling strategies
+
+Each strategy has its own block inside the `strategies` object in `config.json`. Set `"enabled": true` to activate it or `"enabled": false` to disable it.
+
+```json config.json
+{
+  "strategies": {
+    "ema_crossover": { "enabled": true, "fast": 9, "slow": 21 },
+    "rsi_divergence": { "enabled": true, "period": 14, "overbought": 70, "oversold": 30 },
+    "bollinger_breakout": { "enabled": false, "period": 20, "std_dev": 2.0 },
+    "macd_momentum": { "enabled": true, "fast": 12, "slow": 26, "signal": 9 }
+  }
+}
+```
+
+You can also configure strategy parameters directly from the terminal menu by selecting **Strategy Configuration** (option 6).
+
+## Strategy defaults
+
+| Strategy | Default state | Key parameters |
+|---|---|---|
+| EMA Crossover | Enabled | fast=9, slow=21 |
+| RSI Divergence | Enabled | period=14, overbought=70, oversold=30 |
+| Bollinger Band Breakout | **Disabled** | period=20, std_dev=2.0 |
+| MACD Momentum | Enabled | fast=12, slow=26, signal=9 |
+
+<Note>
+  Bollinger Band Breakout is disabled by default. It performs best in high-volatility markets and should be tuned before enabling in production.
+</Note>
+
+## Individual strategy pages
+
+<CardGroup cols={2}>
+  <Card title="EMA Crossover" icon="chart-line" href="/strategies/ema-crossover">
+    Trend-following strategy based on fast and slow exponential moving average crossovers.
+  </Card>
+  <Card title="RSI Divergence" icon="chart-bar" href="/strategies/rsi-divergence">
+    Detects bullish and bearish divergence between price action and RSI momentum.
+  </Card>
+  <Card title="Bollinger Band Breakout" icon="chart-area" href="/strategies/bollinger-breakout">
+    Enters trades when price closes outside the upper or lower Bollinger Band.
+  </Card>
+  <Card title="MACD Momentum" icon="wave-square" href="/strategies/macd-momentum">
+    Trades histogram crossovers with signal line confirmation and zero-line alignment.
+  </Card>
+</CardGroup>

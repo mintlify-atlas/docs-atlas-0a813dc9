@@ -1,0 +1,190 @@
+---
+title: "Risk Management"
+description: "Configure stop-loss, take-profit, trailing stops, position limits, and leverage to protect your account."
+---
+
+The bot includes several independent risk controls. Some live at the top level of `config.json` and apply globally; others are nested under `risk_management` and apply on a per-trade or per-day basis. Configuring these correctly is the most important step before trading with real funds.
+
+<Warning>
+Futures trading with leverage involves substantial risk of loss, including the loss of your entire account balance. Always configure and understand every risk parameter before enabling live trading. Never trade with funds you cannot afford to lose.
+</Warning>
+
+<Tip>
+Run the bot with `"testnet": true` and paper-trade for at least several days before switching to a live account. Verify that stop-losses, take-profits, and position limits all trigger as expected.
+</Tip>
+
+---
+
+## risk_management object
+
+These fields are nested inside `"risk_management"` in `config.json`:
+
+```json
+"risk_management": {
+  "max_open_positions": 5,
+  "max_daily_loss_pct": 3.0,
+  "stop_loss_pct": 2.0,
+  "take_profit_pct": 4.0
+}
+```
+
+<ParamField path="risk_management.max_open_positions" type="integer">
+  Maximum number of positions the bot may hold simultaneously across all pairs. Once this limit is reached, the bot will not open new trades until an existing position closes.
+
+  **Default:** `5`
+
+  Keeping this low (e.g. `3`–`5`) reduces exposure during volatile markets and prevents over-allocation of margin.
+</ParamField>
+
+<ParamField path="risk_management.max_daily_loss_pct" type="float">
+  Daily loss circuit breaker, expressed as a percentage of account balance. If the bot's realized losses for the calendar day exceed this threshold, it stops opening new positions for the remainder of that day.
+
+  **Default:** `3.0` (3% of balance)
+
+  For example, on a $1,000 account with the default `3.0`, the bot halts after losing $30 in a single day. This prevents a losing streak from compounding into a catastrophic drawdown.
+</ParamField>
+
+<ParamField path="risk_management.stop_loss_pct" type="float">
+  Per-trade stop-loss distance, expressed as a percentage of the entry price. When a position moves against you by this amount, it is closed automatically to limit the loss.
+
+  **Default:** `2.0` (close if price moves 2% against entry)
+
+  This is the **fixed** stop-loss. It works independently from the trailing stop — see below for how they interact.
+</ParamField>
+
+<ParamField path="risk_management.take_profit_pct" type="float">
+  Per-trade take-profit target, expressed as a percentage of the entry price. When a position reaches this profit level, it is closed automatically to lock in the gain.
+
+  **Default:** `4.0` (close at 4% profit from entry)
+
+  With the defaults (`stop_loss_pct: 2.0`, `take_profit_pct: 4.0`), the risk/reward ratio is 1:2 — for every dollar risked, the target profit is two dollars.
+</ParamField>
+
+---
+
+## Top-level risk fields
+
+### trailing_stop_pct
+
+<ParamField path="trailing_stop_pct" type="float">
+  Trailing stop distance as a percentage of price. This is a **dynamic** stop-loss that moves with price once a position is profitable.
+
+  **Default:** `1.5` (1.5% trailing distance)
+</ParamField>
+
+**How trailing stop works:**
+
+1. A position opens at entry price.
+2. The fixed stop-loss from `stop_loss_pct` is active immediately.
+3. As price moves in your favor, the trailing stop activates once the position is in profit.
+4. The stop-loss level moves up (for longs) or down (for shorts), always staying `trailing_stop_pct`% away from the price peak.
+5. If price reverses by `trailing_stop_pct`% from its highest point, the position closes automatically.
+
+```
+Example (LONG, entry $100, trailing_stop_pct 1.5%):
+
+Price rises to $104 → trailing stop set at $104 × (1 - 0.015) = $102.44
+Price rises to $108 → trailing stop moves to $108 × (1 - 0.015) = $106.38
+Price drops to $106.38 → trailing stop triggers, position closes at ~$106.38
+```
+
+The trailing stop locks in gains without requiring manual intervention. It does not replace the fixed `stop_loss_pct` — both are active and whichever triggers first closes the position.
+
+---
+
+### max_position_pct
+
+<ParamField path="max_position_pct" type="float">
+  Maximum percentage of account balance that may be allocated to a single position as margin.
+
+  **Default:** `5.0` (5% of balance per position)
+</ParamField>
+
+This limits position sizing to prevent any single trade from dominating the account. The actual notional value of the position is `max_position_pct % × balance × leverage`.
+
+```
+Example:
+  Balance:           $1,000
+  max_position_pct:  5.0  → margin per trade = $50
+  leverage:          10x  → notional position = $500
+```
+
+Keeping `max_position_pct` low ensures that even a full stop-loss on one trade does not wipe a significant portion of the account.
+
+---
+
+### leverage
+
+<ParamField path="leverage" type="integer">
+  Leverage multiplier applied to every trade, from `1` to `125`.
+
+  **Default:** `10`
+</ParamField>
+
+Leverage amplifies both gains and losses by the specified multiple. A 10x leveraged position on a 2% adverse move results in a 20% loss of the margin used for that trade.
+
+| Leverage | 2% adverse move | 5% adverse move | Liquidation approx. |
+|---|---|---|---|
+| 2x | -4% margin | -10% margin | ~50% move |
+| 5x | -10% margin | -25% margin | ~20% move |
+| 10x | -20% margin | -50% margin | ~10% move |
+| 20x | -40% margin | -100% (liquidation) | ~5% move |
+| 50x | -100% (liquidation) | — | ~2% move |
+
+**Leverage recommendations:**
+
+- **2x–5x** — Suitable for beginners or when testing a new strategy. Liquidation requires a large adverse price move.
+- **5x–10x** — Moderate risk; appropriate when combined with a well-tested strategy and tight stop-losses.
+- **10x–20x** — High risk. Stop-losses must be set tightly. Not recommended without significant trading experience.
+- **Above 20x** — Very high risk. A small, normal market fluctuation can trigger liquidation. Only for experienced traders with strict risk controls.
+
+<Warning>
+Values above 20x leverage are extremely risky. Even with stop-losses in place, fast-moving markets (liquidation cascades, flash crashes) can cause slippage that bypasses stop orders. Start at 2x–5x and only increase once you have validated strategy performance on testnet.
+</Warning>
+
+---
+
+## Complete risk configuration example
+
+The following snippet shows a conservative configuration suited for a new user:
+
+```json
+{
+  "leverage": 5,
+  "max_position_pct": 3.0,
+  "trailing_stop_pct": 1.0,
+  "risk_management": {
+    "max_open_positions": 3,
+    "max_daily_loss_pct": 2.0,
+    "stop_loss_pct": 1.5,
+    "take_profit_pct": 3.0
+  }
+}
+```
+
+And a more aggressive configuration for an experienced trader who has validated performance on testnet:
+
+```json
+{
+  "leverage": 15,
+  "max_position_pct": 5.0,
+  "trailing_stop_pct": 1.5,
+  "risk_management": {
+    "max_open_positions": 5,
+    "max_daily_loss_pct": 3.0,
+    "stop_loss_pct": 2.0,
+    "take_profit_pct": 4.0
+  }
+}
+```
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Testnet Guide" icon="flask" href="/usage/testnet">
+    Learn how to validate your risk settings on testnet before going live.
+  </Card>
+  <Card title="Exchange Setup" icon="key" href="/configuration/exchange-setup">
+    Configure API keys and exchange connection for Binance, Bybit, or OKX.
+  </Card>
+</CardGroup>

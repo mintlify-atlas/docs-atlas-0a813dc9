@@ -1,0 +1,80 @@
+---
+title: "Custom API Endpoint"
+description: "Connect the bot to a proprietary signal server or third-party strategy provider via the Custom API source."
+---
+
+The **Custom API** option is the third signal source available in the bot. It is designed for users who operate their own signal server, run a proprietary algorithmic strategy, or want to integrate with a third-party signal provider that exposes an HTTP API — rather than using Telegram or TradingView.
+
+Set `signal_source` to `"api"` in `config.json` and the bot will connect to your custom endpoint when you choose option 3 in the terminal menu.
+
+## Setup guide
+
+<Steps>
+  <Step title="Set signal_source to api in config.json">
+    Open `config.json` and update the `signal_source` field:
+
+    ```json
+    {
+      "signal_source": "api"
+    }
+    ```
+
+    This activates the Custom API source when you connect via the terminal menu.
+  </Step>
+  <Step title="Configure your signal provider endpoint">
+    The Custom API source activates the third option in the signal connection menu. The bot connects to your custom endpoint using the integration logic for option 3 in `action_connect_signal`. There is no dedicated URL field in `config.json` for this source — the connection behavior is determined by the custom integration you build or configure on the provider side.
+
+    A minimal `config.json` that selects the custom API source:
+
+    ```json
+    {
+      "signal_source": "api"
+    }
+    ```
+  </Step>
+  <Step title="Connect via the terminal menu">
+    Run the bot and choose **option 4 — Connect Signal Source** from the main menu:
+
+    ```
+    Select signal source:
+      1 — Telegram Channel
+      2 — TradingView Webhook
+      3 — Custom API Endpoint
+
+    Source [1/2/3]: 3
+    ```
+
+    Select **3**. The bot connects to your custom API endpoint and confirms:
+
+    ```
+    ✓ Custom API signal endpoint connected.
+    ```
+
+    The bot will now poll or stream signals from your provider according to its integration logic.
+  </Step>
+</Steps>
+
+## config.json reference
+
+```json
+{
+  "signal_source": "api"
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `signal_source` | string | Must be `"api"` to activate the Custom API source |
+
+## Use cases
+
+The Custom API source is the right choice when:
+
+- You have built your own algorithmic strategy server and want to pipe its signals directly into the bot's execution engine.
+- You subscribe to a premium signal provider that exposes a REST or WebSocket API rather than a Telegram channel.
+- You want to aggregate signals from multiple proprietary sources through a middleware layer you control before forwarding them to the bot.
+- You are running backtests or paper trading and need to replay historical signal data through the same execution pipeline.
+
+<Tip>
+  The Custom API source gives you full control over the signal pipeline. Build a lightweight intermediary server that normalizes signals from any provider — including paid services, quant research platforms, or your own ML models — into the format the bot expects, then point `signal_source` to `"api"`. This lets you swap or combine signal providers without changing the bot's core configuration or execution logic.
+</Tip>

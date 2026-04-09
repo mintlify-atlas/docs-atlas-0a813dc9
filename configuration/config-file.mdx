@@ -1,0 +1,184 @@
+---
+title: "Configuration File"
+description: "Complete reference for config.json — every field, default value, and environment variable override."
+---
+
+The bot reads its configuration from a `config.json` file in the project root directory. If the file does not exist, built-in defaults from `config.py` are used automatically. Any key you omit falls back to its default.
+
+## config.json location
+
+```
+Binance-Futures-Signal-Bot/
+└── config.json          ← create this file in the project root
+```
+
+Edit the file with any text editor (VS Code, Notepad, nano, etc.), then restart the bot for changes to take effect. Alternatively, use the interactive **Settings** menu from `python main.py`.
+
+## Complete default configuration
+
+This is the full `config.json` with every option set to its default value, as defined in `config.py _DEFAULTS`:
+
+```json
+{
+  "exchange": "binance",
+  "api_key": "YOUR_API_KEY",
+  "api_secret": "YOUR_API_SECRET",
+  "leverage": 10,
+  "max_position_pct": 5.0,
+  "trailing_stop_pct": 1.5,
+  "signal_source": "telegram",
+  "telegram_bot_token": "BOT_TOKEN",
+  "telegram_channel_id": "-100XXXXXXXXXX",
+  "tradingview_webhook_port": 8080,
+  "strategies": {
+    "ema_crossover": {"enabled": true, "fast": 9, "slow": 21},
+    "rsi_divergence": {"enabled": true, "period": 14, "overbought": 70, "oversold": 30},
+    "bollinger_breakout": {"enabled": false, "period": 20, "std_dev": 2.0},
+    "macd_momentum": {"enabled": true, "fast": 12, "slow": 26, "signal": 9}
+  },
+  "pairs": ["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+  "risk_management": {
+    "max_open_positions": 5,
+    "max_daily_loss_pct": 3.0,
+    "stop_loss_pct": 2.0,
+    "take_profit_pct": 4.0
+  },
+  "testnet": false
+}
+```
+
+<Warning>
+Never commit `config.json` to version control. It contains your API keys and secrets. The project's `.gitignore` excludes it by default — verify this before pushing to any repository.
+</Warning>
+
+---
+
+## Top-level fields
+
+<ParamField path="exchange" type="string">
+  The exchange to connect to. Must be one of `binance`, `bybit`, or `okx`.
+
+  **Default:** `"binance"`
+</ParamField>
+
+<ParamField path="api_key" type="string" required>
+  Your exchange API key. Must have **futures trading** permissions enabled. See [Exchange Setup](/configuration/exchange-setup) for instructions on obtaining keys from each exchange.
+</ParamField>
+
+<ParamField path="api_secret" type="string" required>
+  Your exchange API secret, issued alongside `api_key`. Keep this value private — never share it or expose it in logs.
+</ParamField>
+
+<ParamField path="leverage" type="integer">
+  Position leverage applied to every trade, from `1` to `125`.
+
+  **Default:** `10`
+
+  Start with `2`–`5` while testing. Values above `20` are extremely high risk. See [Risk Management](/configuration/risk-management) for guidance.
+</ParamField>
+
+<ParamField path="max_position_pct" type="float">
+  Maximum percentage of your account balance that a single position may use.
+
+  **Default:** `5.0` (5% of balance per position)
+
+  For example, with a $1,000 account and the default `5.0`, no single position will exceed $50 in notional margin before leverage is applied.
+</ParamField>
+
+<ParamField path="trailing_stop_pct" type="float">
+  Trailing stop distance as a percentage of price. Once a position moves into profit by this amount, the stop-loss tracks the price at this distance. If price reverses by `trailing_stop_pct` from its peak, the position closes automatically.
+
+  **Default:** `1.5` (1.5% trailing distance)
+</ParamField>
+
+<ParamField path="signal_source" type="string">
+  The source from which the bot receives trade signals. Must be one of `telegram`, `tradingview`, or `api`.
+
+  **Default:** `"telegram"`
+</ParamField>
+
+<ParamField path="telegram_bot_token" type="string">
+  The bot token issued by [@BotFather](https://t.me/BotFather) on Telegram. Required when `signal_source` is `"telegram"`. Format: `123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ`.
+</ParamField>
+
+<ParamField path="telegram_channel_id" type="string">
+  The numeric ID of the Telegram channel from which the bot reads signals. Channel IDs always start with `-100` (e.g. `-1001234567890`). Required when `signal_source` is `"telegram"`.
+</ParamField>
+
+<ParamField path="tradingview_webhook_port" type="integer">
+  The local port on which the bot listens for incoming TradingView webhook alerts. Required when `signal_source` is `"tradingview"`.
+
+  **Default:** `8080`
+
+  Ensure the port is open in your firewall and not already in use by another service.
+</ParamField>
+
+<ParamField path="pairs" type="array">
+  List of futures trading pairs to monitor and trade. Each entry must be a valid pair symbol on your chosen exchange (e.g. `"BTCUSDT"`, `"ETHUSDT"`).
+
+  **Default:** `["BTCUSDT", "ETHUSDT", "SOLUSDT"]`
+</ParamField>
+
+<ParamField path="testnet" type="boolean">
+  When `true`, the bot connects to the exchange's testnet endpoints instead of live markets. No real funds are used.
+
+  **Default:** `false`
+
+  Always validate your configuration on testnet before running with real funds.
+</ParamField>
+
+---
+
+## Nested objects
+
+### strategies
+
+Controls which built-in strategies are active and their indicator parameters. See the [Strategies Overview](/strategies/overview) for full documentation.
+
+```json
+"strategies": {
+  "ema_crossover":      {"enabled": true,  "fast": 9,  "slow": 21},
+  "rsi_divergence":     {"enabled": true,  "period": 14, "overbought": 70, "oversold": 30},
+  "bollinger_breakout": {"enabled": false, "period": 20, "std_dev": 2.0},
+  "macd_momentum":      {"enabled": true,  "fast": 12, "slow": 26, "signal": 9}
+}
+```
+
+Set `"enabled": false` to disable a strategy without removing its configuration.
+
+### risk_management
+
+Per-trade and account-level guardrails. Documented in full on the [Risk Management](/configuration/risk-management) page.
+
+```json
+"risk_management": {
+  "max_open_positions": 5,
+  "max_daily_loss_pct": 3.0,
+  "stop_loss_pct": 2.0,
+  "take_profit_pct": 4.0
+}
+```
+
+---
+
+## Keeping secrets out of config.json
+
+The `config.json` file is the only place the bot reads credentials from. To avoid storing secrets in a file, you can use your operating system's secret management tools or a process manager that injects secrets at startup — then write them into `config.json` programmatically before launching the bot.
+
+<Warning>
+The bot reads credentials exclusively from `config.json`. There is no built-in environment variable override. Keep `config.json` out of version control (it is in `.gitignore` by default) and restrict file permissions on servers (`chmod 600 config.json` on Linux/macOS).
+</Warning>
+
+For production deployments, consider using a secrets manager (HashiCorp Vault, AWS Secrets Manager, etc.) to populate `config.json` at startup, then clear the file after the bot exits.
+
+---
+
+## How configuration is loaded
+
+The loader in `config.py` merges the file with built-in defaults:
+
+1. Start from `_DEFAULTS` (all fields at their default values).
+2. If `config.json` exists, load it and call `cfg.update(user_cfg)` — your values overwrite the defaults.
+3. If `config.json` is missing or contains malformed JSON, the bot silently continues with the built-in defaults.
+
+This means you only need to include the fields you want to change — a minimal `config.json` is perfectly valid.

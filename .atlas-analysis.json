@@ -1,0 +1,93 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "Binance Futures Signal Bot",
+  "projectDescription": "Professional automated trading bot for Binance, Bybit, and OKX Futures markets with a multi-strategy engine, signal integrations (Telegram, TradingView, custom API), and a real-time P&L dashboard.",
+  "theme": "aspen",
+  "primaryColor": "#94cb04",
+  "lightColor": "#545454",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/config-file",
+              "configuration/exchange-setup",
+              "configuration/risk-management"
+            ]
+          },
+          {
+            "group": "Signal Sources",
+            "pages": [
+              "signals/overview",
+              "signals/telegram",
+              "signals/tradingview",
+              "signals/custom-api"
+            ]
+          },
+          {
+            "group": "Trading Strategies",
+            "pages": [
+              "strategies/overview",
+              "strategies/ema-crossover",
+              "strategies/rsi-divergence",
+              "strategies/bollinger-breakout",
+              "strategies/macd-momentum"
+            ]
+          },
+          {
+            "group": "Usage",
+            "pages": [
+              "usage/menu-reference",
+              "usage/position-manager",
+              "usage/pnl-dashboard",
+              "usage/testnet"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/supported-exchanges",
+              "reference/faq",
+              "reference/disclaimer"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Multi-exchange support: Binance, Bybit, and OKX Futures",
+    "Signal integration via Telegram, TradingView webhooks, or custom API",
+    "Four built-in strategies: EMA Crossover, RSI Divergence, Bollinger Breakout, MACD Momentum",
+    "Configurable leverage from 1x to 125x with dynamic position sizing",
+    "Trailing stop-loss engine for automated risk management",
+    "Real-time P&L dashboard with per-pair breakdown",
+    "Rich interactive terminal UI with a guided menu system",
+    "Testnet support for safe strategy testing"
+  ],
+  "publicApiSurface": [
+    "python main.py (interactive menu entry point)",
+    "config.json (exchange, leverage, strategies, risk_management, signal_source, pairs, testnet)",
+    "load_config() -> dict (config.py)",
+    "save_config(cfg: dict) (config.py)",
+    "action_connect_signal(cfg: dict) (bot_actions.py)",
+    "action_start_trading(cfg: dict) (bot_actions.py)",
+    "action_strategy_config(cfg: dict) (bot_actions.py)",
+    "action_position_manager(cfg: dict) (bot_actions.py)",
+    "action_pnl_dashboard(cfg: dict) (bot_actions.py)",
+    "check_environment (decorator, engine/__init__.py)",
+    "run.bat / run.sh (platform launchers)"
+  ]
+}

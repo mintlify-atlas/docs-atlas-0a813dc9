@@ -1,0 +1,100 @@
+---
+title: 'Disclaimer'
+description: 'Important risk disclosures for users of the Binance Futures Signal Bot. This software is provided for educational and research purposes only.'
+keywords: ['disclaimer', 'risk', 'financial advice', 'liability', 'educational']
+---
+
+<Warning>
+  This software is provided **for educational and research purposes only**. Trading cryptocurrency futures involves substantial risk of loss. The authors are not responsible for any financial losses, account liquidation, or damages arising from use of this software. Past performance does not guarantee future results. Always trade responsibly and never risk more than you can afford to lose.
+</Warning>
+
+---
+
+## Educational purpose only
+
+The Binance Futures Signal Bot is a software tool designed to demonstrate automated trading concepts, algorithmic signal processing, and exchange API integration. It is published for educational and research purposes.
+
+Using this software to trade live markets is done entirely at your own discretion and risk. The codebase, documentation, strategies, and configuration examples are provided as illustrative references — not as a trading system intended for profit generation.
+
+---
+
+## Financial risk
+
+Trading cryptocurrency futures carries a high degree of risk and may not be suitable for all participants. Key risk factors include:
+
+- **Leverage amplifies losses.** A position using 10x leverage can lose its entire value on a 10% adverse move. At 20x, a 5% move is sufficient for full liquidation.
+- **Market volatility.** Cryptocurrency markets operate 24/7 and can experience extreme price swings within seconds, including gaps that bypass stop-loss orders.
+- **Liquidation risk.** If a leveraged position moves against you and your margin is exhausted, the exchange will forcibly close the position, resulting in total loss of the margin deposited.
+- **Software risk.** Bugs, network failures, API outages, or misconfiguration can cause the bot to behave unexpectedly — opening, failing to close, or duplicating positions.
+- **Exchange risk.** Exchange insolvency, withdrawal freezes, or API changes can affect your ability to access funds or execute orders.
+
+You should only participate in futures trading if you fully understand these risks and can afford to lose the funds you deploy.
+
+---
+
+## No financial advice
+
+Nothing in this repository, its documentation, or its source code constitutes financial, investment, or trading advice. The authors and contributors:
+
+- Are not licensed financial advisors, brokers, or investment professionals.
+- Do not recommend any specific trading strategy, leverage level, or position size.
+- Make no representation that any strategy included in this software is profitable or suitable for your circumstances.
+
+Any trading decisions you make are your own. Consult a qualified financial advisor before trading if you are uncertain about the risks involved.
+
+---
+
+## Past performance
+
+Backtested results, strategy examples, and any performance figures referenced in this project do not guarantee or predict future results. Backtesting operates on historical data under idealized conditions that do not account for:
+
+- Slippage and partial fills
+- Funding rates on perpetual contracts
+- Exchange fees
+- Latency and execution delays
+- Market regime changes
+
+Live trading results will differ from backtested results, often significantly.
+
+---
+
+## Responsible trading practices
+
+If you choose to use this software with real funds, follow these practices to limit your risk:
+
+<Tip>
+  Start on testnet with paper trading before deploying real capital. Set `"testnet": true` in `config.json` to use Binance or Bybit testnet endpoints at no cost.
+</Tip>
+
+- **Use low leverage to start.** Begin at 2x–5x while you validate strategy behavior in live market conditions.
+- **Set stop-losses on every trade.** Configure `stop_loss_pct` and `max_daily_loss_pct` in the `risk_management` block of `config.json`.
+- **Limit position size.** Keep `max_position_pct` small (e.g. 2–5%) so no single trade can cause disproportionate damage to your account.
+- **Monitor the bot actively.** Automated systems can malfunction. Do not leave the bot running unattended for extended periods without checking its status.
+- **Never risk funds you cannot afford to lose.** Only deploy capital that, if lost entirely, would not affect your financial stability or wellbeing.
+
+```json
+{
+  "leverage": 3,
+  "max_position_pct": 2.0,
+  "trailing_stop_pct": 1.5,
+  "risk_management": {
+    "max_open_positions": 3,
+    "max_daily_loss_pct": 2.0,
+    "stop_loss_pct": 1.5,
+    "take_profit_pct": 3.0
+  }
+}
+```
+
+---
+
+## Further reading
+
+<CardGroup cols={2}>
+  <Card title="Testnet guide" icon="flask" href="/usage/testnet">
+    Practice strategies safely with paper trading before using real funds.
+  </Card>
+  <Card title="Risk management" icon="shield" href="/configuration/risk-management">
+    Configure stop-loss, daily loss limits, and position sizing.
+  </Card>
+</CardGroup>

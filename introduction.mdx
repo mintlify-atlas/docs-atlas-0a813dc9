@@ -1,0 +1,81 @@
+---
+title: "Introduction"
+description: "Professional automated trading bot for Binance, Bybit, and OKX Futures markets with a multi-strategy engine and real-time P&L dashboard."
+---
+
+## What is Binance Futures Signal Bot?
+
+Binance Futures Signal Bot is a professional-grade automated trading system built for cryptocurrency futures markets. It connects to signal providers — Telegram channels, TradingView webhooks, or custom APIs — and executes trades on your behalf with configurable leverage, dynamic position sizing, and a trailing stop-loss engine.
+
+The bot is designed for traders who want to automate their strategy execution without building exchange integrations from scratch. It handles order placement, position tracking, risk management, and live P&L reporting through a rich terminal interface, all from a single `python main.py` command.
+
+## Supported Exchanges
+
+| Exchange | Futures | Spot | API Version |
+|----------|:-------:|:----:|-------------|
+| **Binance** | ✓ | ✓ | v3 / fapi |
+| **Bybit** | ✓ | — | v5 |
+| **OKX** | ✓ | — | v5 |
+
+## Key Features
+
+### Core Engine
+
+- **Multi-exchange support** — Trade on Binance Futures, Bybit USDT Perpetual, or OKX Perpetual Swap from the same configuration file.
+- **Telegram signal integration** — Listen to any Telegram channel or bot and parse incoming trade signals automatically.
+- **TradingView webhook receiver** — Accept alerts from TradingView strategies and indicators via a local HTTP webhook server on a configurable port.
+- **Custom API signal source** — Connect a proprietary signal source through the custom API adapter.
+- **Configurable leverage** — Set leverage from 1x up to 125x per exchange limits.
+- **Dynamic position sizing** — Allocate a percentage of your account balance per position using `max_position_pct`.
+- **Trailing stop-loss engine** — Lock in profits by following the price at a configurable percentage distance once a position is in profit.
+
+### Strategies & Tools
+
+- **EMA Crossover** — Long/short signals on fast (default 9) vs. slow (default 21) EMA crossovers.
+- **RSI Divergence** — Detects bullish and bearish price/RSI divergences with adjustable period and thresholds.
+- **Bollinger Band Breakout** — Enters positions when price closes outside the upper or lower band.
+- **MACD Momentum** — Trades histogram crossovers with signal line confirmation and zero-line trend filter.
+- **Real-time P&L dashboard** — Live profit and loss overview rendered in the terminal.
+- **Position manager** — View all open positions and close them individually or in bulk.
+- **Rich terminal UI** — A full-featured interactive menu built with the `rich` library.
+
+## Project Structure
+
+```
+Binance-Futures-Signal-Bot/
+├── main.py              # Entry point with interactive menu
+├── bot_actions.py       # Core trading action handlers
+├── config.py            # Configuration loader (JSON + defaults)
+├── requirements.txt     # Python dependencies
+├── run.bat              # Windows launcher
+├── run.sh               # Linux/macOS launcher
+├── actions/
+│   ├── __init__.py
+│   ├── about.py         # Feature display
+│   ├── install.py       # Dependency installer
+│   └── settings.py      # Configuration UI
+└── engine/
+    ├── __init__.py      # Environment check decorator
+    ├── ui.py            # Rich terminal interface
+    ├── client.py        # Secure transport layer
+    ├── crypto.py        # Cryptographic utilities
+    ├── env.py           # Host environment detection
+    └── worker.py        # Signal worker
+```
+
+## Where to Go Next
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get the bot running in minutes — clone, configure, and start trading.
+  </Card>
+  <Card title="Installation" icon="wrench" href="/installation">
+    Detailed setup for Windows, Linux, and macOS with all prerequisites.
+  </Card>
+  <Card title="Strategies" icon="chart-line" href="/strategies/overview">
+    Learn how EMA, RSI, Bollinger Band, and MACD strategies work and how to tune them.
+  </Card>
+  <Card title="Signal Sources" icon="signal" href="/signals/overview">
+    Connect Telegram, TradingView, or a custom API as your signal provider.
+  </Card>
+</CardGroup>
